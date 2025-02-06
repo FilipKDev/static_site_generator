@@ -2,14 +2,15 @@ import unittest
 
 from htmlnode import HTMLNode
 from leafnode import LeafNode
+from parentnode import ParentNode
 
 class TestHTMLNode(unittest.TestCase):
     def test_empty(self):
         node = HTMLNode()
-        self.assertEqual(node.tag, None, "tag is not empty")
-        self.assertEqual(node.value, None, "value is not empty")
-        self.assertEqual(node.children, None, "children is not empty")
-        self.assertEqual(node.props, None, "props is not empty")
+        self.assertIsNone(node.tag)
+        self.assertIsNone(node.value)
+        self.assertIsNone(node.children)
+        self.assertIsNone(node.props)
 
     def test_props_to_html_return_type(self):
         props_argument = {"href": "https://www.google.com"}
@@ -53,14 +54,76 @@ class TestLeafNode(unittest.TestCase):
         self.assertNotEqual(leaf_node.to_html(), leaf_node.value)
 
     def test_to_html_with_props(self):
-        leaf_node = LeafNode("h1", "this test has props", None, {"href": "https://www.boot.dev", "name": "test"})
+        leaf_node = LeafNode("h1", "this test has props", {"href": "https://www.boot.dev", "name": "test"})
         self.assertIsInstance(leaf_node.to_html(), str)
         self.assertNotEqual(leaf_node.to_html(), leaf_node.value)
+        self.assertEqual(leaf_node.to_html(), f"<{leaf_node.tag}{leaf_node.props_to_html()}>{leaf_node.value}</{leaf_node.tag}>")
 
     def test_to_html_exception(self):
         leaf_node = LeafNode("label", None)
         with self.assertRaises(ValueError):
             leaf_node.to_html()
+
+class TestParentNode(unittest.TestCase):
+    def test_no_tag(self):
+        parent_node = ParentNode(None, [LeafNode("a", "test value")])
+        with self.assertRaises(ValueError):
+            parent_node.to_html()
+
+    def test_no_children(self):
+        parent_node = ParentNode("html", None)
+        with self.assertRaises(ValueError):
+            parent_node.to_html()
+
+    def test_to_html_one_child(self):
+        child = LeafNode(None, "test value")
+        parent_node = ParentNode("p", [child])
+        self.assertIsInstance(parent_node.to_html(), str)
+        self.assertEqual(parent_node.to_html(), "<p>test value</p>")
+
+    def test_to_html_two_children(self):
+        child_1 = LeafNode("i", "italic test value")
+        child_2 = LeafNode(None, "test value without tag")
+        parent_node = ParentNode("p", [child_1, child_2])
+        self.assertIsInstance(parent_node.to_html(), str)
+        self.assertEqual(parent_node.to_html(), "<p><i>italic test value</i>test value without tag</p>")
+
+    def test_to_html_parent_props(self):
+        child_1 = LeafNode("b", "bold text")
+        child_2 = LeafNode("i", "italic text")
+        parent_node = ParentNode("h1", [child_1, child_2], {"href": "https://www.youtube.com/"})
+        self.assertIsInstance(parent_node.to_html(), str)
+        self.assertEqual(parent_node.to_html(), "<h1 href=\"https://www.youtube.com/\"><b>bold text</b><i>italic text</i></h1>")
+
+    def test_to_html_children_props(self):
+        child_1 = LeafNode("b", "bold text", {"name": "child 1"})
+        child_2 = LeafNode("i", "italic text", {"name": "child 2"})
+        parent_node = ParentNode("h1", [child_1, child_2])
+        self.assertIsInstance(parent_node.to_html(), str)
+        self.assertEqual(parent_node.to_html(), "<h1><b name=\"child 1\">bold text</b><i name=\"child 2\">italic text</i></h1>")
+
+    def test_to_html_parent_children_props(self):
+        child_1 = LeafNode("b", "bold text", {"name": "child 1"})
+        child_2 = LeafNode("i", "italic text", {"name": "child 2"})
+        parent_node = ParentNode("h1", [child_1, child_2], {"name": "parent"})
+        self.assertIsInstance(parent_node.to_html(), str)
+        self.assertEqual(parent_node.to_html(), "<h1 name=\"parent\"><b name=\"child 1\">bold text</b><i name=\"child 2\">italic text</i></h1>")
+
+    def test_to_html_child_is_parent(self):
+        child_1 = LeafNode("h1", "this is a leaf node value")
+        child_parent = ParentNode("body", [child_1])
+        parent_node = ParentNode("html", [child_parent])
+        self.assertIsInstance(parent_node.to_html(), str)
+        self.assertEqual(parent_node.to_html(), "<html><body><h1>this is a leaf node value</h1></body></html>")
+
+    def test_to_html_child_is_parent_props(self):
+        child_1 = LeafNode("h1", "this is a leaf node value", {"name": "child 1"})
+        child_parent = ParentNode("body", [child_1], {"name": "parent node with child_1"})
+        parent_node = ParentNode("html", [child_parent], {"name": "parent node with parent node with child_1"})
+        self.assertIsInstance(parent_node.to_html(), str)
+        self.assertEqual(
+            parent_node.to_html(), 
+            "<html name=\"parent node with parent node with child_1\"><body name=\"parent node with child_1\"><h1 name=\"child 1\">this is a leaf node value</h1></body></html>")
 
 if __name__ == "__main__":
     unittest.main()
