@@ -5,7 +5,7 @@ from leafnode import LeafNode
 from parentnode import ParentNode
 from textnode import TextNode
 from textnode import TextType
-from main import text_node_to_html_node
+from textnode import text_node_to_html_node
 
 class TestHTMLNode(unittest.TestCase):
     def test_empty(self):
@@ -130,7 +130,7 @@ class TestParentNode(unittest.TestCase):
 
 class TestTextNodeToHTMLNode(unittest.TestCase):
     def test_normal(self):
-        text_node = TextNode("Standard text", TextType.NORMAL)
+        text_node = TextNode("Standard text", TextType.TEXT)
         self.assertEqual(text_node_to_html_node(text_node), text_node.text)
 
     def test_bold(self):
