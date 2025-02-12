@@ -1,6 +1,6 @@
 import unittest
 
-from textnode import TextNode, TextType, split_nodes_delimiter
+from textnode import TextNode, TextType, split_nodes_delimiter, extract_markdown_images, extract_markdown_links
 
 
 class TestTextNode(unittest.TestCase):
@@ -150,6 +150,39 @@ class TestSplitNodesDelimiter(unittest.TestCase):
             TextNode("", TextType.TEXT)]
         for i in range(0, len(new_nodes)):
             self.assertEqual(new_nodes[i], expected_nodes[i])
+
+class TestExtractMarkdownImagesAndLinks(unittest.TestCase):
+    def test_one_image(self):
+        text = "This is a text with ![an F-16 fighter jet](https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/F-16_June_2008.jpg/1200px-F-16_June_2008.jpg)"
+        expected_output = [("an F-16 fighter jet", "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/F-16_June_2008.jpg/1200px-F-16_June_2008.jpg")]
+        self.assertEqual(extract_markdown_images(text), expected_output)
+
+    def test_multiple_images(self):
+        text = "This is a text with ![an F-16 fighter jet](https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/F-16_June_2008.jpg/1200px-F-16_June_2008.jpg) and ![Godzilla](https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Godzilla_%281954%29.jpg/1200px-Godzilla_%281954%29.jpg)"
+        expected_output = [
+            ("an F-16 fighter jet", "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/F-16_June_2008.jpg/1200px-F-16_June_2008.jpg"), 
+            ("Godzilla", "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Godzilla_%281954%29.jpg/1200px-Godzilla_%281954%29.jpg")]
+        self.assertEqual(extract_markdown_images(text), expected_output)
+
+    def test_one_link(self):
+        text = "This is a text with a link [to Google](https://www.google.com/)"
+        expected_output = [("to Google", "https://www.google.com/")]
+        self.assertEqual(extract_markdown_links(text), expected_output)
+
+    def test_multiple_links(self):
+        text = "This is a text with a link [to Google](https://www.google.com/) and [to YouTube](https://www.youtube.com/)"
+        expected_output = [
+            ("to Google", "https://www.google.com/"),
+            ("to YouTube", "https://www.youtube.com/")
+        ]
+        self.assertEqual(extract_markdown_links(text), expected_output)
+
+    def test_image_and_link(self):
+        text = "This is a text with ![an image of Godzilla](https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Godzilla_%281954%29.jpg/1200px-Godzilla_%281954%29.jpg) and link [to Google](https://www.google.com/)"
+        expected_images_output = [("an image of Godzilla", "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Godzilla_%281954%29.jpg/1200px-Godzilla_%281954%29.jpg")]
+        expected_link_output = [("to Google", "https://www.google.com/")]
+        self.assertEqual(extract_markdown_images(text), expected_images_output)
+        self.assertEqual(extract_markdown_links(text), expected_link_output)
 
 if __name__ == "__main__":
     unittest.main()

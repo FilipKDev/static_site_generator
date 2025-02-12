@@ -1,5 +1,6 @@
 from enum import Enum
 from leafnode import LeafNode
+import re
 
 class TextType(Enum):
     TEXT = "text"
@@ -58,3 +59,22 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
                 else:
                     new_nodes.append(TextNode(f"{node_text_split[i]}", TextType.TEXT))
     return new_nodes  
+
+def extract_markdown_images(text):
+    alt_text_list = re.findall(r"!\[(.*?)\]", text)
+    url_list = re.findall(r"\((.*?)\)", text)
+    image_tuples = []
+    for i in range(0, len(alt_text_list)):
+        image_tuple = (alt_text_list[i], url_list[i])
+        image_tuples.append(image_tuple)
+    return image_tuples
+
+def extract_markdown_links(text):
+    link_list = re.findall(r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
+    return link_list
+
+if __name__ == "__main__":
+    text = "This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)"
+    extract_markdown_images(text)
+    text = "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)"
+    extract_markdown_links(text)

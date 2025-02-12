@@ -3,9 +3,7 @@ import unittest
 from htmlnode import HTMLNode
 from leafnode import LeafNode
 from parentnode import ParentNode
-from textnode import TextNode
-from textnode import TextType
-from textnode import text_node_to_html_node
+from textnode import TextNode, TextType, text_node_to_html_node
 
 class TestHTMLNode(unittest.TestCase):
     def test_empty(self):
