@@ -39,27 +39,6 @@ def text_node_to_html_node(text_node):
         case _:
             raise Exception("unknown text type")
 
-def split_nodes_delimiter(old_nodes, delimiter, text_type):
-    new_nodes = []
-    for node in old_nodes:
-        if node.text_type != TextType.TEXT:
-            new_nodes.append(node)
-        else:
-            node_text_split = node.text.split(delimiter)
-            delimiter_count = 0
-            for char in node.text:
-                if char == delimiter:
-                    delimiter_count += 1
-            if delimiter_count % 2 != 0:
-                raise Exception("Invalid markdown syntax - no text enclosed by the delimiter")
-
-            for i in range(0, len(node_text_split)):
-                if i % 2 != 0:
-                    new_nodes.append(TextNode(f"{node_text_split[i]}", text_type))
-                else:
-                    new_nodes.append(TextNode(f"{node_text_split[i]}", TextType.TEXT))
-    return new_nodes  
-
 def extract_markdown_images(text):
     alt_text_list = re.findall(r"!\[(.*?)\]", text)
     url_list = re.findall(r"\((.*?)\)", text)
@@ -73,8 +52,72 @@ def extract_markdown_links(text):
     link_list = re.findall(r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
     return link_list
 
+def split_nodes_delimiter(old_nodes, delimiter, text_type):
+    new_nodes = []
+    for node in old_nodes:
+        if node.text_type != TextType.TEXT:
+            new_nodes.append(node)
+        else:
+            delimiter_count = 0
+            for char in node.text:
+                if char == delimiter:
+                    delimiter_count += 1
+            if delimiter_count % 2 != 0:
+                raise Exception("Invalid markdown syntax - no text enclosed by the delimiter")
+
+            node_text_split = node.text.split(delimiter)
+            for i in range(0, len(node_text_split)):
+                if i % 2 != 0:
+                    new_nodes.append(TextNode(f"{node_text_split[i]}", text_type))
+                else:
+                    new_nodes.append(TextNode(f"{node_text_split[i]}", TextType.TEXT))
+    return new_nodes  
+
+def split_nodes_image(old_nodes):
+    new_nodes = []
+    for node in old_nodes:
+        if not node.text:
+            continue
+
+        node_images = extract_markdown_images(node.text)
+        node_text = node.text
+        node_text_list = []
+        for i in range(0, len(node_images)):
+            node_text_split = node_text.split(f"![{node_images[i][0]}]({node_images[i][1]})", 1)
+            if node_text_split[0] != "":
+                new_nodes.append(TextNode(f"{node_text_split[0]}", TextType.TEXT))
+            new_nodes.append(TextNode(f"{node_images[i][0]}", TextType.IMAGE, f"{node_images[i][1]}"))
+            if i == len(node_images) - 1 and node_text_split[1] != "":
+                new_nodes.append(TextNode(f"{node_text_split[1]}"), TextType.TEXT)
+            node_text = node_text_split[1]
+    print(new_nodes)
+    return new_nodes
+
+def split_nodes_link(old_nodes):
+    new_nodes = []
+    for node in old_nodes:
+        if not node.text:
+            continue
+
+        node_links = extract_markdown_links(node.text)
+        node_text = node.text
+        node_text_list = []
+        for i in range(0, len(node_links)):
+            node_text_split = node_text.split(f"[{node_links[i][0]}]({node_links[i][1]})", 1)
+            node_text_split.insert(1, f"[{node_links[i][0]}]({node_links[i][1]})")
+            if i < len(node_links) - 1:
+                node_text = node_text_split.pop(2)
+            node_text_list.extend(node_text_split)
+        
+        for i in range(0, len(node_text_list)):
+            if not node_text_list[i]:
+                continue
+            if i % 2 != 0:
+                new_nodes.append(TextNode(f"{node_text_list[i]}", TextType.LINK))
+            else:
+                new_nodes.append(TextNode(f"{node_text_list[i]}", TextType.TEXT))
+    return new_nodes
+
 if __name__ == "__main__":
-    text = "This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)"
-    extract_markdown_images(text)
-    text = "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)"
-    extract_markdown_links(text)
+    text_node = TextNode("This is text with a image ![to boot dev](https://www.boot.dev) and ![to youtube](https://www.youtube.com/@bootdotdev)", TextType.TEXT)
+    split_nodes_image([text_node])
