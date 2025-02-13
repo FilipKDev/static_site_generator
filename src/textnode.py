@@ -81,16 +81,19 @@ def split_nodes_image(old_nodes):
 
         node_images = extract_markdown_images(node.text)
         node_text = node.text
-        node_text_list = []
+
+        if not node_images:
+            new_nodes.append(node)
+            continue
+
         for i in range(0, len(node_images)):
             node_text_split = node_text.split(f"![{node_images[i][0]}]({node_images[i][1]})", 1)
             if node_text_split[0] != "":
                 new_nodes.append(TextNode(f"{node_text_split[0]}", TextType.TEXT))
             new_nodes.append(TextNode(f"{node_images[i][0]}", TextType.IMAGE, f"{node_images[i][1]}"))
             if i == len(node_images) - 1 and node_text_split[1] != "":
-                new_nodes.append(TextNode(f"{node_text_split[1]}"), TextType.TEXT)
+                new_nodes.append(TextNode(f"{node_text_split[1]}", TextType.TEXT))
             node_text = node_text_split[1]
-    print(new_nodes)
     return new_nodes
 
 def split_nodes_link(old_nodes):
@@ -101,23 +104,21 @@ def split_nodes_link(old_nodes):
 
         node_links = extract_markdown_links(node.text)
         node_text = node.text
-        node_text_list = []
+
+        if not node_links:
+            new_nodes.append(node)
+            continue
+
         for i in range(0, len(node_links)):
             node_text_split = node_text.split(f"[{node_links[i][0]}]({node_links[i][1]})", 1)
-            node_text_split.insert(1, f"[{node_links[i][0]}]({node_links[i][1]})")
-            if i < len(node_links) - 1:
-                node_text = node_text_split.pop(2)
-            node_text_list.extend(node_text_split)
-        
-        for i in range(0, len(node_text_list)):
-            if not node_text_list[i]:
-                continue
-            if i % 2 != 0:
-                new_nodes.append(TextNode(f"{node_text_list[i]}", TextType.LINK))
-            else:
-                new_nodes.append(TextNode(f"{node_text_list[i]}", TextType.TEXT))
+            if node_text_split[0] != "":
+                new_nodes.append(TextNode(f"{node_text_split[0]}", TextType.TEXT))
+            new_nodes.append(TextNode(f"{node_links[i][0]}", TextType.LINK, f"{node_links[i][1]}"))
+            if i == len(node_links) - 1 and node_text_split[1] != "":
+                new_nodes.append(TextNode(f"{node_text_split[1]}", TextType.TEXT))
+            node_text = node_text_split[1]
     return new_nodes
 
 if __name__ == "__main__":
-    text_node = TextNode("This is text with a image ![to boot dev](https://www.boot.dev) and ![to youtube](https://www.youtube.com/@bootdotdev)", TextType.TEXT)
-    split_nodes_image([text_node])
+    text_node = TextNode("This is text with a image [to boot dev](https://www.boot.dev)[to youtube](https://www.youtube.com/@bootdotdev) some words", TextType.TEXT)
+    split_nodes_link([text_node])

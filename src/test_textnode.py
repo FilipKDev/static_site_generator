@@ -1,6 +1,6 @@
 import unittest
 
-from textnode import TextNode, TextType, split_nodes_delimiter, extract_markdown_images, extract_markdown_links
+from textnode import TextNode, TextType, split_nodes_delimiter, extract_markdown_images, extract_markdown_links, split_nodes_image, split_nodes_link
 
 
 class TestTextNode(unittest.TestCase):
@@ -183,6 +183,205 @@ class TestExtractMarkdownImagesAndLinks(unittest.TestCase):
         expected_link_output = [("to Google", "https://www.google.com/")]
         self.assertEqual(extract_markdown_images(text), expected_images_output)
         self.assertEqual(extract_markdown_links(text), expected_link_output)
+
+    def test_split_one_image_one_node(self):
+        text_node = TextNode(
+            "this is a text and this is ![an image of Empire State Building](https://www.esbnyc.com/sites/default/files/2024-06/ESB-DarkBlueSky.jpg)", 
+            TextType.TEXT)
+        expected_output = [
+            TextNode("this is a text and this is ", TextType.TEXT),
+            TextNode(
+                "an image of Empire State Building", 
+                TextType.IMAGE, 
+                "https://www.esbnyc.com/sites/default/files/2024-06/ESB-DarkBlueSky.jpg"
+                )
+        ]
+        self.assertEqual(split_nodes_image([text_node]), expected_output)
+
+    def test_split_two_images_one_node(self):
+        text_node = TextNode(
+            "the first image is ![a cat](https://i.natgeofe.com/n/548467d8-c5f1-4551-9f58-6817a8d2c45e/NationalGeographic_2572187_3x2.jpg) and the second image is ![a dog](https://cdn.britannica.com/79/232779-050-6B0411D7/German-Shepherd-dog-Alsatian.jpg)", 
+            TextType.TEXT)
+        expected_output = [
+            TextNode("the first image is ", TextType.TEXT),
+            TextNode(
+                "a cat", 
+                TextType.IMAGE, 
+                "https://i.natgeofe.com/n/548467d8-c5f1-4551-9f58-6817a8d2c45e/NationalGeographic_2572187_3x2.jpg"
+                ),
+            TextNode(" and the second image is ", TextType.TEXT),
+            TextNode(
+                "a dog", 
+                TextType.IMAGE, 
+                "https://cdn.britannica.com/79/232779-050-6B0411D7/German-Shepherd-dog-Alsatian.jpg"
+                )
+        ]
+        self.assertEqual(split_nodes_image([text_node]), expected_output)
+
+    def test_split_one_image_two_nodes(self):
+        text_nodes = [
+            TextNode(
+                "this node has an image of ![a cat](https://i.natgeofe.com/n/548467d8-c5f1-4551-9f58-6817a8d2c45e/NationalGeographic_2572187_3x2.jpg)", 
+                TextType.TEXT
+                ),
+            TextNode(
+                "and there is ![a dog](https://cdn.britannica.com/79/232779-050-6B0411D7/German-Shepherd-dog-Alsatian.jpg) in the second node", 
+                TextType.TEXT
+                )
+        ]
+        expected_output = [
+            TextNode("this node has an image of ", TextType.TEXT),
+            TextNode(
+                "a cat", 
+                TextType.IMAGE, 
+                "https://i.natgeofe.com/n/548467d8-c5f1-4551-9f58-6817a8d2c45e/NationalGeographic_2572187_3x2.jpg"
+                ),
+            TextNode("and there is ", TextType.TEXT),
+            TextNode(
+                "a dog", 
+                TextType.IMAGE, 
+                "https://cdn.britannica.com/79/232779-050-6B0411D7/German-Shepherd-dog-Alsatian.jpg"
+                ),
+            TextNode(" in the second node", TextType.TEXT)
+        ]
+        self.assertEqual(split_nodes_image(text_nodes), expected_output)
+
+    def test_split_two_images_two_nodes(self):
+        text_nodes = [
+            TextNode(
+                "![a dog](https://i.imgur.com/OB0y6MR.jpg) and ![a cat](https://i.imgur.com/CzXTtJV.jpg)", 
+                TextType.TEXT
+                ),
+            TextNode(
+                "second node has ![a placeholder image](https://dummyimage.com/700x300.png) and ![another placeholder image](https://dummyimage.com/800x400.png) and then some text after", 
+                TextType.TEXT
+                )
+        ]
+        expected_output = [
+            TextNode("a dog", TextType.IMAGE, "https://i.imgur.com/OB0y6MR.jpg"),
+            TextNode(" and ", TextType.TEXT),
+            TextNode("a cat", TextType.IMAGE, "https://i.imgur.com/CzXTtJV.jpg"),
+            TextNode("second node has ", TextType.TEXT),
+            TextNode("a placeholder image", TextType.IMAGE, "https://dummyimage.com/700x300.png"),
+            TextNode(" and ", TextType.TEXT),
+            TextNode("another placeholder image", TextType.IMAGE, "https://dummyimage.com/800x400.png"),
+            TextNode(" and then some text after", TextType.TEXT)
+        ]
+        self.assertEqual(split_nodes_image(text_nodes), expected_output)
+
+    def test_split_one_link_one_node(self):
+        text_node = TextNode("in this node there's a link [to google](https://www.google.com/) website", TextType.TEXT)
+        expected_output = [
+            TextNode("in this node there's a link ", TextType.TEXT),
+            TextNode("to google", TextType.LINK, "https://www.google.com/"),
+            TextNode(" website", TextType.TEXT)
+        ]
+        self.assertEqual(split_nodes_link([text_node]), expected_output)
+
+    def test_split_two_links_one_node(self):
+        text_node = TextNode(
+            "This is a text node with a link [to Google](https://www.google.com/) and [to YouTube](https://www.youtube.com/)", 
+            TextType.TEXT
+            )
+        expected_output = [
+            TextNode("This is a text node with a link ", TextType.TEXT),
+            TextNode("to Google", TextType.LINK, "https://www.google.com/"),
+            TextNode(" and ", TextType.TEXT),
+            TextNode("to YouTube", TextType.LINK, "https://www.youtube.com/")
+        ]
+        self.assertEqual(split_nodes_link([text_node]), expected_output)
+
+    def test_split_one_link_two_nodes(self):
+        text_nodes = [
+            TextNode("This text node has a link [to Google](https://www.google.com/)", TextType.TEXT),
+            TextNode("[YouTube link](https://www.youtube.com/) is in the second text node", TextType.TEXT)
+        ]
+        expected_output = [
+            TextNode("This text node has a link ", TextType.TEXT),
+            TextNode("to Google", TextType.LINK, "https://www.google.com/"),
+            TextNode("YouTube link", TextType.LINK, "https://www.youtube.com/"),
+            TextNode(" is in the second text node", TextType.TEXT)
+        ]
+        self.assertEqual(split_nodes_link(text_nodes), expected_output)
+
+    def test_split_two_links_two_nodes(self):
+        text_nodes = [
+            TextNode(
+                "First node with a link [to Google](https://www.google.com/) and a link [to YouTube](https://www.youtube.com/)", 
+                TextType.TEXT
+                ),
+            TextNode(
+                "Second node has two links [to boot.dev](https://www.boot.dev)[to W3 Schools](https://www.w3schools.com)", 
+                TextType.TEXT
+                )
+        ]
+        expected_output = [
+            TextNode("First node with a link ", TextType.TEXT),
+            TextNode("to Google", TextType.LINK, "https://www.google.com/"),
+            TextNode(" and a link ", TextType.TEXT),
+            TextNode("to YouTube", TextType.LINK, "https://www.youtube.com/"),
+            TextNode("Second node has two links ", TextType.TEXT),
+            TextNode("to boot.dev", TextType.LINK, "https://www.boot.dev"),
+            TextNode("to W3 Schools", TextType.LINK, "https://www.w3schools.com")
+        ]
+        self.assertEqual(split_nodes_link(text_nodes), expected_output)
+
+    def test_split_one_link_one_image_one_node(self):
+        text_node = TextNode(
+            "this node has a link [to Google](https://www.google.com/) and an image of ![a dog](https://i.imgur.com/OB0y6MR.jpg)", 
+            TextType.TEXT
+            )
+        expected_output = [
+            TextNode("this node has a link ", TextType.TEXT),
+            TextNode("to Google", TextType.LINK, "https://www.google.com/"),
+            TextNode(" and an image of ", TextType.TEXT),
+            TextNode("a dog", TextType.IMAGE, "https://i.imgur.com/OB0y6MR.jpg")
+        ]
+        self.assertEqual(split_nodes_image(split_nodes_link([text_node])), expected_output)
+
+    def test_split_one_link_one_image_two_nodes(self):
+        text_nodes = [
+            TextNode(
+                "First node with a link [to Google](https://www.google.com/) and an image ![of 1 pixel dot](https://dummyimage.com/1x1.png)", 
+                TextType.TEXT
+                ),
+            TextNode(
+                "Second node has an image ![of 4 pixel dot](https://dummyimage.com/2x2.png)[and a link to W3 Schools](https://www.w3schools.com)", 
+                TextType.TEXT
+                )
+        ]
+        expected_output = [
+            TextNode("First node with a link ", TextType.TEXT),
+            TextNode("to Google", TextType.LINK, "https://www.google.com/"),
+            TextNode(" and an image ", TextType.TEXT),
+            TextNode("of 1 pixel dot", TextType.IMAGE, "https://dummyimage.com/1x1.png"),
+            TextNode("Second node has an image ", TextType.TEXT),
+            TextNode("of 4 pixel dot", TextType.IMAGE, "https://dummyimage.com/2x2.png"),
+            TextNode("and a link to W3 Schools", TextType.LINK, "https://www.w3schools.com")
+        ]
+        self.assertEqual(split_nodes_image(split_nodes_link(text_nodes)), expected_output)
+
+    def split_varied_images_varied_links_multiple_nodes(self):
+        text_nodes = [
+            TextNode("The first node has ![an image of 16 pixels](https://dummyimage.com/4x4.png)", TextType.TEXT),
+            TextNode("While the second node is just text", TextType.TEXT),
+            TextNode("The third node has [a link to Google](https://www.google.com/)![and an image of 64 pixels](https://dummyimage.com/8x8.png)", TextType.TEXT),
+            TextNode("", TextType.TEXT),
+            TextNode("![100 pixels](https://dummyimage.com/10x10.png)[a link to boot.dev](https://www.boot.dev)![another image](https://www.boot.dev/img/bootdev-logo-full-small.webp)[and another link](https://bsky.app/)")
+        ]
+        expected_output = [
+            TextNode("The first node has ", TextType.TEXT),
+            TextNode("an image of 16 pixels", TextType.IMAGE, "https://dummyimage.com/4x4.png"),
+            TextNode("While the second node is just text", TextType.TEXT),
+            TextNode("The third node has ", TextType.TEXT),
+            TextNode("a link to Google", TextType.LINK, "https://www.google.com/"),
+            TextNode("and an image of 64 pixels", TextType.IMAGE, "https://dummyimage.com/8x8.png"),
+            TextNode("100 pixels", TextType.IMAGE, "https://dummyimage.com/10x10.png"),
+            TextNode("a link to boot.dev", TextType.LINK, "https://www.boot.dev"),
+            TextNode("another image", TextType.IMAGE, "https://www.boot.dev/img/bootdev-logo-full-small.webp"),
+            TextNode("and another link", TextType.LINK, "https://bsky.app/")
+        ]
+        self.assertEqual(split_nodes_image(split_nodes_link(text_nodes)), expected_output)
 
 if __name__ == "__main__":
     unittest.main()
