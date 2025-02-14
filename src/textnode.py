@@ -82,7 +82,7 @@ def split_nodes_image(old_nodes):
         node_images = extract_markdown_images(node.text)
         node_text = node.text
 
-        if not node_images:
+        if not node_images or node.text_type != TextType.TEXT:
             new_nodes.append(node)
             continue
 
@@ -105,7 +105,7 @@ def split_nodes_link(old_nodes):
         node_links = extract_markdown_links(node.text)
         node_text = node.text
 
-        if not node_links:
+        if not node_links or node.text_type != TextType.TEXT:
             new_nodes.append(node)
             continue
 
@@ -119,6 +119,9 @@ def split_nodes_link(old_nodes):
             node_text = node_text_split[1]
     return new_nodes
 
+def text_to_textnodes(text):
+    return split_nodes_image(split_nodes_link(split_nodes_delimiter(split_nodes_delimiter(split_nodes_delimiter([TextNode(text, TextType.TEXT)], "**", TextType.BOLD), "*", TextType.ITALIC), "`", TextType.CODE)))
+
 if __name__ == "__main__":
-    text_node = TextNode("This is text with a image [to boot dev](https://www.boot.dev)[to youtube](https://www.youtube.com/@bootdotdev) some words", TextType.TEXT)
-    split_nodes_link([text_node])
+    text = "`Some code at the start` and *italic* text and then (a link)(https://google.com/)"
+    print(text_to_textnodes(text))
