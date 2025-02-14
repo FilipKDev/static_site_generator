@@ -1,5 +1,5 @@
 import unittest
-from block_markdown import markdown_to_blocks
+from block_markdown import markdown_to_blocks, block_to_block_type
 
 class TestMarkdownToBlocks(unittest.TestCase):
     def test_one_line(self):
@@ -109,6 +109,65 @@ And a paragraph at the end."""
             "* Second list item with leading and trailing whitespace\n* Third list item"
         ]
         self.assertEqual(markdown_to_blocks(document), expected_output)
+
+class TestBlockToBlockType(unittest.TestCase):
+    def test_normal(self):
+        document = """\
+This is a normal paragraph without any special characters.
+"""
+        self.assertEqual(block_to_block_type(document), "normal")
+
+    def test_heading(self):
+        document = """\
+### HEADING
+"""
+        self.assertEqual(block_to_block_type(document), "heading")
+
+    def test_invalid_heading(self):
+        document = """\
+####### HEADING WITH TOO MANY HASH CHARACTERS
+"""
+        self.assertNotEqual(block_to_block_type(document), "heading")
+
+    def test_code(self):
+        document = """\
+```A code block
+With some extra lines```
+"""
+        self.assertEqual(block_to_block_type(document), "code")
+
+    def test_quote(self):
+        document = """\
+> Quote 1
+> Quote 2
+> Quote 3
+"""
+        self.assertEqual(block_to_block_type(document), "quote")
+
+    def test_unordered_list(self):
+        document = """\
+* List Item 1
+* List Item 2
+* List Item 3
+"""
+        self.assertEqual(block_to_block_type(document), "unordered list")
+
+    def test_ordered_list(self):
+        document = """\
+1. Ordered List Item 1
+2. Ordered List Item 2
+3. Ordered List Item 3
+4. Ordered List Item 4
+"""
+        self.assertEqual(block_to_block_type(document), "ordered list")
+
+    def test_mistake(self):
+        document = """\
+1. Ordered List Item 1
+* Oops a mistake
+## another mistake
+"""
+        self.assertEqual(block_to_block_type(document), "normal")
 
 if __name__ == "__main__":
     unittest.main()
