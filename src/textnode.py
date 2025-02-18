@@ -25,17 +25,17 @@ class TextNode:
 def text_node_to_html_node(text_node):
     match text_node.text_type:
         case TextType.TEXT:
-            return LeafNode(None, text_node.text).to_html()
+            return LeafNode(None, text_node.text)
         case TextType.BOLD:
-            return LeafNode("b", text_node.text).to_html()
+            return LeafNode("b", text_node.text)
         case TextType.ITALIC:
-            return LeafNode("i", text_node.text).to_html()
+            return LeafNode("i", text_node.text)
         case TextType.CODE:
-            return LeafNode("code", text_node.text).to_html()
+            return LeafNode("code", text_node.text)
         case TextType.LINK:
-            return LeafNode("a", text_node.text, {"href": f"{text_node.url}"}).to_html()
+            return LeafNode("a", text_node.text, {"href": f"{text_node.url}"})
         case TextType.IMAGE:
-            return LeafNode("img", "", {"src": f"{text_node.url}", "alt": f"{text_node.text}"}).to_html()
+            return LeafNode("img", "", {"src": f"{text_node.url}", "alt": f"{text_node.text}"})
         case _:
             raise Exception("unknown text type")
 
@@ -123,5 +123,8 @@ def text_to_textnodes(text):
     return split_nodes_image(split_nodes_link(split_nodes_delimiter(split_nodes_delimiter(split_nodes_delimiter([TextNode(text, TextType.TEXT)], "**", TextType.BOLD), "*", TextType.ITALIC), "`", TextType.CODE)))
 
 if __name__ == "__main__":
-    text = "`Some code at the start` and *italic* text and then (a link)(https://google.com/)"
-    print(text_to_textnodes(text))
+    text = """\
+`Some code at the start` and 
+*italic* text and 
+then (a link)(https://google.com/)"""
+    print(f"{text_to_textnodes(text)}")
