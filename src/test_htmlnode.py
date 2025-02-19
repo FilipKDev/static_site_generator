@@ -129,27 +129,35 @@ class TestParentNode(unittest.TestCase):
 class TestTextNodeToHTMLNode(unittest.TestCase):
     def test_normal(self):
         text_node = TextNode("Standard text", TextType.TEXT)
-        self.assertEqual(text_node_to_html_node(text_node), text_node.text)
+        expected_output = HTMLNode(None, "Standard text", None, None)
+        self.assertEqual(text_node_to_html_node(text_node), expected_output)
+        #self.assertIsNone(text_node_to_html_node(text_node).tag)
+        #self.assertEqual(text_node_to_html_node(text_node).value, "Standard text")
 
     def test_bold(self):
         text_node = TextNode("Bold text", TextType.BOLD)
-        self.assertEqual(text_node_to_html_node(text_node), f"<b>{text_node.text}</b>")
+        expected_output = HTMLNode("b", "Bold text", None, None)
+        self.assertEqual(text_node_to_html_node(text_node), expected_output)
 
     def test_italic(self):
         text_node = TextNode("Italic text", TextType.ITALIC)
-        self.assertEqual(text_node_to_html_node(text_node), f"<i>{text_node.text}</i>")
+        expected_output = HTMLNode("i", "Italic text", None, None)
+        self.assertEqual(text_node_to_html_node(text_node), expected_output)
 
     def test_code(self):
         text_node = TextNode("Code text", TextType.CODE)
-        self.assertEqual(text_node_to_html_node(text_node), f"<code>{text_node.text}</code>")
+        expected_output = HTMLNode("code", "Code text", None, None)
+        self.assertEqual(text_node_to_html_node(text_node), expected_output)
 
     def test_link(self):
         text_node = TextNode("link text", TextType.LINK, "https://link.link/")
-        self.assertEqual(text_node_to_html_node(text_node), f"<a href=\"{text_node.url}\">{text_node.text}</a>")
+        expected_output = HTMLNode("a", "link text", None, {"href": "https://link.link/"})
+        self.assertEqual(text_node_to_html_node(text_node), expected_output)
 
     def test_images(self):
         text_node = TextNode("Image alt text", TextType.IMAGE, "https://www.google.co.uk/images/branding/googlelogo/2x/googlelogo_light_color_272x92dp.png")
-        self.assertEqual(text_node_to_html_node(text_node), f"<img src=\"{text_node.url}\" alt=\"{text_node.text}\"></img>")
+        expected_output = HTMLNode("img", "", None, {"src": "https://www.google.co.uk/images/branding/googlelogo/2x/googlelogo_light_color_272x92dp.png", "alt": "Image alt text"})
+        self.assertEqual(text_node_to_html_node(text_node), expected_output)
 
     def test_exception(self):
         text_node = TextNode("Something something", "nope")

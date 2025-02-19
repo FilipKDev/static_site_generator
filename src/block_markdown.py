@@ -35,22 +35,16 @@ def markdown_to_html_node(markdown):
         block_type = block_to_block_type(block)
         match block_type:
             case "heading": 
-                print(create_header_node(block))
                 block_nodes.append(create_header_node(block))
             case "code":
-                print(create_code_node(block))
                 block_nodes.append(create_code_node(block))
             case "quote":
-                print(create_quote_node(block))
                 block_nodes.append(create_quote_node(block))
             case "unordered list":
-                print(create_unordered_list_node(block))
                 block_nodes.append(create_unordered_list_node(block))
             case "ordered list":
-                print(create_ordered_list_node(block))
                 block_nodes.append(create_ordered_list_node(block))
             case "normal":
-                print(create_paragraph_node(block))
                 block_nodes.append(create_paragraph_node(block))
     return ParentNode("div", block_nodes)
             
@@ -76,14 +70,14 @@ def create_quote_node(block):
     children_nodes = []
     for line in lines:
         line = re.sub(r"^([>])+ ", "", line)
-        children_nodes.append(text_to_children(line))
+        children_nodes.extend(text_to_children(line))
     return ParentNode("blockquote", children_nodes)
 
 def create_unordered_list_node(block):
     lines = block.split("\n")
     children_nodes = []
     for line in lines:
-        children_nodes.append(ParentNode("li", text_to_children(line[2:])))
+        children_nodes.append(ParentNode("li", text_to_children(line[2:]))) 
     return ParentNode("ul", children_nodes)
 
 def create_ordered_list_node(block):
@@ -95,18 +89,18 @@ def create_ordered_list_node(block):
     return ParentNode("ol", children_nodes)
 
 def create_paragraph_node(block):
-    children_nodes = text_to_children(block)
-    return ParentNode("p", children_nodes)
-
-def text_to_children(block):
     lines = block.split("\n")
     children_nodes = []
     for line in lines:
-        text_nodes = text_to_textnodes(line)
-        for text_node in text_nodes:
-            children_nodes.append(text_node_to_html_node(text_node))
-    return children_nodes
+        children_nodes.append(ParentNode("", text_to_children(line)))
+    return ParentNode("p", children_nodes)
 
+def text_to_children(line):
+    children_nodes = []
+    text_nodes = text_to_textnodes(line)
+    for text_node in text_nodes:
+        children_nodes.append(text_node_to_html_node(text_node))
+    return children_nodes
 
 if __name__ == "__main__":
     heading_text = """\

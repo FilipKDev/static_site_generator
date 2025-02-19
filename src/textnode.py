@@ -63,7 +63,7 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
                 if char == delimiter:
                     delimiter_count += 1
             if delimiter_count % 2 != 0:
-                raise Exception("Invalid markdown syntax - no text enclosed by the delimiter")
+                raise ValueError(f"Invalid markdown syntax - no text enclosed by delimiter {delimiter}")
 
             node_text_split = node.text.split(delimiter)
             for i in range(0, len(node_text_split)):
@@ -71,7 +71,7 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
                     new_nodes.append(TextNode(f"{node_text_split[i]}", text_type))
                 else:
                     new_nodes.append(TextNode(f"{node_text_split[i]}", TextType.TEXT))
-    return new_nodes  
+    return new_nodes
 
 def split_nodes_image(old_nodes):
     new_nodes = []
