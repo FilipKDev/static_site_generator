@@ -7,11 +7,10 @@ def markdown_to_blocks(markdown):
     markdown_split = markdown.split("\n\n")
     string_list = []
     for string in markdown_split:
-        lines = []
-        for line in string.split("\n"):
-            lines.append(line.strip())
         if string != "":
-            string_list.append("\n".join(lines).strip("\n"))
+            string = string.strip("\n")
+            string = string.strip()
+            string_list.append(string)
     return string_list
 
 def block_to_block_type(markdown):

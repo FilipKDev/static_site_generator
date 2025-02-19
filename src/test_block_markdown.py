@@ -59,7 +59,7 @@ And this is a paragraph of text after the heading. It has words in it.
         expected_output = [
             "# This is a heading with some trailing white space",
             "And this is a paragraph of text with leading white space. It has words in it.",
-            "* This is the start of a list\n* Second list item with leading and trailing whitespace\n* Third list item"
+            "* This is the start of a list\n     * Second list item with leading and trailing whitespace   \n* Third list item"
         ]
         self.assertEqual(markdown_to_blocks(document), expected_output)
 
@@ -98,8 +98,8 @@ And a paragraph at the end."""
 
 
 
-   * Second list item with leading and trailing whitespace   
-* Third list item
+   * Second list item with leading whitespace 
+* Third list item with trailing white space       
 
 
 
@@ -110,7 +110,7 @@ And a paragraph at the end."""
             "# This is a heading with some trailing white space",
             "And this is a paragraph of text with leading white space. It has words in it.",
             "* This is the start of a list",
-            "* Second list item with leading and trailing whitespace\n* Third list item"
+            "* Second list item with leading whitespace \n* Third list item with trailing white space"
         ]
         self.assertEqual(markdown_to_blocks(document), expected_output)
 
@@ -666,13 +666,13 @@ for i in range(0, 10)
                 ])
             ]),
             ParentNode("blockquote", [
-                LeafNode(None, "According to all known laws of aviation,"),
-                LeafNode(None, "there is no way a bee should be able to fly."),
+                LeafNode(None, "According to all known laws of aviation, "),
+                LeafNode(None, "there is no way a bee should be able to fly. "),
                 LeafNode(None, "Its wings are too small to...")
             ]),
             ParentNode("p", [
                 ParentNode("", [
-                    LeafNode(None, "Above is a quote block.")
+                    LeafNode(None, "Above is a quote block. ")
                 ]),
                 ParentNode("", [
                     LeafNode(None, "And below is an ordered list with "),
@@ -713,7 +713,7 @@ for i in range(0, 10)
             ]),
             ParentNode("pre", [
                 LeafNode("code", "for i in range(0, 10)<br>"),
-                LeafNode("code", "print(i)")
+                LeafNode("code", "    print(i)")
             ])
         ])
         self.assertEqual(markdown_to_html_node(markdown), expected_output)
