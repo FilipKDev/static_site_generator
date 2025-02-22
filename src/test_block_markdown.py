@@ -1,5 +1,5 @@
 import unittest
-from block_markdown import markdown_to_blocks, block_to_block_type, markdown_to_html_node
+from block_markdown import markdown_to_blocks, block_to_block_type, markdown_to_html_node, extract_title
 from htmlnode import HTMLNode
 from leafnode import LeafNode
 from parentnode import ParentNode
@@ -717,6 +717,55 @@ for i in range(0, 10)
             ])
         ])
         self.assertEqual(markdown_to_html_node(markdown), expected_output)
+
+class TestExtractTitle(unittest.TestCase):
+    def test_heading_only(self):
+        markdown = "# This Is A Test Heading"
+        expected_output = "This Is A Test Heading"
+        self.assertEqual(extract_title(markdown), expected_output)
+
+    def test_heading_and_paragraph(self):
+        markdown = """\
+# TEST HEADING
+
+This is a paragraph with some words in it.
+"""
+        expected_output = "TEST HEADING"
+        self.assertEqual(extract_title(markdown), expected_output)
+    
+    def test_heading_and_subheader(self):
+        markdown = """\
+# MAIN HEADING
+
+## SUB HEADING
+
+This is a paragraph with some words in it after a sub-heading.
+"""
+        expected_output = "MAIN HEADING"
+        self.assertEqual(extract_title(markdown), expected_output)
+
+    def test_heading_multiple_headings(self):
+        markdown = """\
+# First Heading
+
+# MAIN HEADING AGAIN
+
+# Another Heading
+"""
+        expected_output = "First Heading"
+
+    def test_heading_exception(self):
+        markdown = """\
+This is just a markdown string without a heading.
+
+```
+some code
+etc
+```
+"""
+        with self.assertRaises(Exception):
+            extract_title(markdown)
+        
 
 if __name__ == "__main__":
     unittest.main()

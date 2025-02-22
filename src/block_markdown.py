@@ -3,6 +3,14 @@ from textnode import TextType, TextNode, text_node_to_html_node, text_to_textnod
 from leafnode import LeafNode
 from parentnode import ParentNode
 
+def extract_title(markdown):
+    match = re.search(r"^#{1} .*", markdown, re.MULTILINE)
+    if match:
+        return match.group(0)[2:].strip()
+    else:
+        raise Exception("No header found")
+        
+
 def markdown_to_blocks(markdown):
     markdown_split = markdown.split("\n\n")
     string_list = []
