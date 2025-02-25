@@ -187,8 +187,9 @@ Just some text without any special syntax.
         expected_output = HTMLNode("div", None, 
         [
             ParentNode("p", [
-                ParentNode("", [LeafNode(None, "Just some text without any special syntax.")])
-            ])])
+                LeafNode(None, "Just some text without any special syntax.")
+            ])
+        ])
         self.assertEqual(markdown_to_html_node(markdown), expected_output)
 
     def test_single_block_heading_no_inline_syntax(self):
@@ -276,11 +277,19 @@ Some code
 """
         expected_output = HTMLNode("div", None, [
             ParentNode("p", [
-                ParentNode("", [LeafNode(None, "List item 1")]),
-                ParentNode("", [LeafNode(None, "2. List item 2")]),
-                ParentNode("", [LeafNode("code", "Code")]),
-                ParentNode("", [LeafNode(None, "Some code")]),
-                ParentNode("", [LeafNode("code", "Code2")])
+                LeafNode(None, "List item 1")
+            ]),
+            ParentNode("p", [
+                LeafNode(None, "2. List item 2")
+            ]),
+            ParentNode("p", [
+                LeafNode("code", "Code")
+            ]),
+            ParentNode("p", [
+                LeafNode(None, "Some code")
+            ]),
+            ParentNode("p", [
+                LeafNode("code", "Code2")
             ])
         ])
         self.assertEqual(markdown_to_html_node(markdown), expected_output)
@@ -300,13 +309,11 @@ Just some text with **bold words** and *italic words*.
         expected_output = HTMLNode("div", None, 
         [
             ParentNode("p", [
-                ParentNode("", [
-                    LeafNode(None, "Just some text with "),
-                    LeafNode("b", "bold words"),
-                    LeafNode(None, " and "),
-                    LeafNode("i", "italic words"),
-                    LeafNode(None, ".")
-                    ])
+                LeafNode(None, "Just some text with "),
+                LeafNode("b", "bold words"),
+                LeafNode(None, " and "),
+                LeafNode("i", "italic words"),
+                LeafNode(None, ".")
             ])
         ])
         self.assertEqual(markdown_to_html_node(markdown), expected_output)
@@ -424,21 +431,23 @@ Some `code`
 """
         expected_output = HTMLNode("div", None, [
             ParentNode("p", [
-                ParentNode("", [
-                    LeafNode("b", "Bold words"),
-                    LeafNode(None, " and "),
-                    LeafNode("i", "italic words")
-                    ]),
-                ParentNode("", [LeafNode(None, "2. List item 2")]),
-                ParentNode("", [
-                    LeafNode("code", "Code"),
-                    LeafNode(None, " and words")
-                    ]),
-                ParentNode("", [
-                    LeafNode(None, "Some "),
-                    LeafNode("code", "code")
-                    ]),
-                ParentNode("", [LeafNode("code", "Code2")])
+                LeafNode("b", "Bold words"),
+                LeafNode(None, " and "),
+                LeafNode("i", "italic words")
+            ]),
+            ParentNode("p", [
+                LeafNode(None, "2. List item 2")
+            ]),
+            ParentNode("p", [
+                LeafNode("code", "Code"),
+                LeafNode(None, " and words")
+            ]),
+            ParentNode("p", [
+                LeafNode(None, "Some "),
+                LeafNode("code", "code")
+            ]),
+            ParentNode("p", [
+                LeafNode("code", "Code2")
             ])
         ])
         self.assertEqual(markdown_to_html_node(markdown), expected_output)
@@ -449,12 +458,10 @@ This is a paragraph with [a link to Google](https://www.google.co.uk/) and an ![
 """
         expected_output = HTMLNode("div", None, [
             ParentNode("p", [
-                ParentNode("", [
-                    LeafNode(None, "This is a paragraph with "),
-                    LeafNode("a", "a link to Google", {"href": "https://www.google.co.uk/"}),
-                    LeafNode(None, " and an "),
-                    LeafNode("img", "", {"src": "https://dummyimage.com/1x1.png", "alt": "image of a pixel"})
-                    ])
+                LeafNode(None, "This is a paragraph with "),
+                LeafNode("a", "a link to Google", {"href": "https://www.google.co.uk/"}),
+                LeafNode(None, " and an "),
+                LeafNode("img", "", {"src": "https://dummyimage.com/1x1.png", "alt": "image of a pixel"})
             ])
         ])
         self.assertEqual(markdown_to_html_node(markdown), expected_output)
@@ -516,11 +523,9 @@ This is a paragraph with `some code` in it.
                 LeafNode("b", "BOLD HEADING")
             ]),
             ParentNode("p", [
-                ParentNode("", [
-                    LeafNode(None, "This is a paragraph with "),
-                    LeafNode("code", "some code"),
-                    LeafNode(None, " in it.")
-                ])
+                LeafNode(None, "This is a paragraph with "),
+                LeafNode("code", "some code"),
+                LeafNode(None, " in it.")
             ]),
             ParentNode("ul", [
                 ParentNode("li", [
@@ -556,13 +561,11 @@ Some **bold** and *italic* words.
                 LeafNode("code", "return c")
             ]),
             ParentNode("p", [
-                ParentNode("", [
-                    LeafNode(None, "Some "),
-                    LeafNode("b", "bold"),
-                    LeafNode(None, " and "),
-                    LeafNode("i", "italic"),
-                    LeafNode(None, " words.")
-                    ])
+                LeafNode(None, "Some "),
+                LeafNode("b", "bold"),
+                LeafNode(None, " and "),
+                LeafNode("i", "italic"),
+                LeafNode(None, " words.")
             ]),
             ParentNode("ol", [
                 ParentNode("li", [LeafNode(None, "List Item 1")]),
@@ -594,10 +597,8 @@ Final paragraph with [a link to Wikipedia](https://en.wikipedia.org/wiki/Main_Pa
                 LeafNode(None, "More quotes 2")
             ]),
             ParentNode("p", [
-                ParentNode("", [
-                    LeafNode(None, "Final paragraph with "),
-                    LeafNode("a", "a link to Wikipedia", {"href": "https://en.wikipedia.org/wiki/Main_Page"})
-                ])
+                LeafNode(None, "Final paragraph with "),
+                LeafNode("a", "a link to Wikipedia", {"href": "https://en.wikipedia.org/wiki/Main_Page"})
             ])
         ])
         self.assertEqual(markdown_to_html_node(markdown), expected_output)
@@ -635,16 +636,14 @@ for i in range(0, 10)
         expected_output = HTMLNode("div", None, [
             ParentNode("h6", [LeafNode(None, "This is a full document written in markdown")]),
             ParentNode("p", [
-                ParentNode("", [
-                    LeafNode(None, "It has various markdown types that are split into "),
-                    LeafNode("b", "blocks"),
-                    LeafNode(None, " by "),
-                    LeafNode("i", "this markdown function"),
-                    LeafNode(None, ".")
-                ])
+                LeafNode(None, "It has various markdown types that are split into "),
+                LeafNode("b", "blocks"),
+                LeafNode(None, " by "),
+                LeafNode("i", "this markdown function"),
+                LeafNode(None, ".")
             ]),
             ParentNode("p", [
-                ParentNode("", [LeafNode(None, "For example, an unordered list:")])
+                LeafNode(None, "For example, an unordered list:")
             ]),
             ParentNode("ul", [
                 ParentNode("li", [
@@ -671,16 +670,14 @@ for i in range(0, 10)
                 LeafNode(None, "Its wings are too small to...")
             ]),
             ParentNode("p", [
-                ParentNode("", [
-                    LeafNode(None, "Above is a quote block. ")
-                ]),
-                ParentNode("", [
-                    LeafNode(None, "And below is an ordered list with "),
-                    LeafNode("i", "images"),
-                    LeafNode(None, " and "),
-                    LeafNode("i", "links"),
-                    LeafNode(None, ".")
-                ])
+                LeafNode(None, "Above is a quote block. ")
+            ]),
+            ParentNode("p", [
+                LeafNode(None, "And below is an ordered list with "),
+                LeafNode("i", "images"),
+                LeafNode(None, " and "),
+                LeafNode("i", "links"),
+                LeafNode(None, ".")
             ]),
             ParentNode("ol", [
                 ParentNode("li", [
@@ -703,13 +700,11 @@ for i in range(0, 10)
                 ])
             ]),
             ParentNode("p", [
-                ParentNode("", [
-                    LeafNode(None, "Finally, there is a code block with an example of a "),
-                    LeafNode("code", "for"),
-                    LeafNode(None, " loop function in "),
-                    LeafNode("b", "Python"),
-                    LeafNode(None, ".")
-                ])
+                LeafNode(None, "Finally, there is a code block with an example of a "),
+                LeafNode("code", "for"),
+                LeafNode(None, " loop function in "),
+                LeafNode("b", "Python"),
+                LeafNode(None, ".")
             ]),
             ParentNode("pre", [
                 LeafNode("code", "for i in range(0, 10)<br>"),
@@ -717,6 +712,21 @@ for i in range(0, 10)
             ])
         ])
         self.assertEqual(markdown_to_html_node(markdown), expected_output)
+
+        def test_paragraph_fix(self):
+            markdown = """\
+It has various markdown types that are split into **blocks** by *this markdown function*.
+"""
+            expected_output = HTMLNode("div", None, [
+                ParentNode("p", [
+                    LeafNode(None, "It has various markdown types that are split into "),
+                    LeafNode("b", "blocks"),
+                    LeafNode(None, " by "),
+                    LeafNode("i", "this markdown function"),
+                    LeafNode(None, ".")
+                ])
+            ])
+            self.assertEqual(markdown_to_html_node(markdown), expected_output)
 
 class TestExtractTitle(unittest.TestCase):
     def test_heading_only(self):

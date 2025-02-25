@@ -52,7 +52,7 @@ def markdown_to_html_node(markdown):
             case "ordered list":
                 block_nodes.append(create_ordered_list_node(block))
             case "normal":
-                block_nodes.append(create_paragraph_node(block))
+                block_nodes.extend(create_paragraph_node(block))
     return ParentNode("div", block_nodes)
             
 def create_header_node(block):
@@ -99,8 +99,8 @@ def create_paragraph_node(block):
     lines = block.split("\n")
     children_nodes = []
     for line in lines:
-        children_nodes.append(ParentNode("", text_to_children(line)))
-    return ParentNode("p", children_nodes)
+        children_nodes.append(ParentNode("p", text_to_children(line)))
+    return children_nodes
 
 def text_to_children(line):
     children_nodes = []
