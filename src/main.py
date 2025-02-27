@@ -29,6 +29,7 @@ def generate_page(from_path, template_path, dest_path):
 
     template = read_template(template_path)
     webpage = template.replace("{{ Title }}", title)
+    #print(f"\n{markdown_html_node.to_html()}")
     webpage = webpage.replace("{{ Content }}", markdown_html_node.to_html())
 
     if not os.path.exists(dest_path):

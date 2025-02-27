@@ -121,10 +121,9 @@ class TestSplitNodesDelimiter(unittest.TestCase):
         expected_nodes = [
             TextNode("First text node with a ", TextType.TEXT), 
             TextNode("code block", TextType.CODE),
-            TextNode("", TextType.TEXT),
             TextNode("Second text node with ", TextType.TEXT),
             TextNode("another code block", TextType.CODE),
-            TextNode("", TextType.TEXT)]
+            ]
         for i in range(0, len(new_nodes)):
             self.assertEqual(new_nodes[i], expected_nodes[i])
 

@@ -75,9 +75,14 @@ def create_code_node(block):
 def create_quote_node(block):
     lines = block.split("\n")
     children_nodes = []
+    i = 0
     for line in lines:
-        line = re.sub(r"^([>])+ ", "", line)
+        line = re.sub(r"^([>])+", "", line)
+        line = line.lstrip()
+        if i != len(lines) - 1:
+            line += " "
         children_nodes.extend(text_to_children(line))
+        i += 1
     return ParentNode("blockquote", children_nodes)
 
 def create_unordered_list_node(block):
@@ -108,39 +113,3 @@ def text_to_children(line):
     for text_node in text_nodes:
         children_nodes.append(text_node_to_html_node(text_node))
     return children_nodes
-
-if __name__ == "__main__":
-    heading_text = """\
-#### HEADING *BOLD* WORDS
-"""
-    code_text = """\
-```
-TEST CODE
-test code
-```
-"""
-    quote_text = """\
-> Quote 1
-> Quote 2
->> QUOTE 3
->>>>> QUOTE 4
-"""
-    unordered_text = """\
-* Unordered list item
-* Unordered **list** item
-"""
-    ordered_text = """\
-99. Ordered list item 1
-100. **Ordered** list *item* 2
-"""
-    paragraph_text = """\
-Test testing **bold text** and *italic text*
-"""
-    test_1 = """\
-### Search websites
-
-1. [Google](https://www.google.co.uk/)
-2. [Bing](https://www.bing.com/)
-3. [DuckDuckGo](https://duckduckgo.com/)
-"""
-    markdown_to_html_node(test_1)

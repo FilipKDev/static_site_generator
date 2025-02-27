@@ -229,8 +229,8 @@ CODE LINE 2
         expected_output = HTMLNode("div", None,
         [
             ParentNode("blockquote", [
-                LeafNode(None, "Quote Line 1"), 
-                LeafNode(None, "Quote Line 2"), 
+                LeafNode(None, "Quote Line 1 "), 
+                LeafNode(None, "Quote Line 2 "), 
                 LeafNode(None, "Quote Line 3")
             ])
         ])
@@ -358,9 +358,9 @@ CODE *LINE* 2
             ParentNode("blockquote", [
                 LeafNode(None, "Quote Line with "), 
                 LeafNode("b", "bold"), 
-                LeafNode(None, " words"), 
+                LeafNode(None, " words "), 
                 LeafNode("i", "Italic words"),
-                LeafNode(None, " in quote line 2"),
+                LeafNode(None, " in quote line 2 "),
                 LeafNode(None, "This "),
                 LeafNode("code", "code"),
                 LeafNode(None, " exists in this quote line")
@@ -588,12 +588,12 @@ Final paragraph with [a link to Wikipedia](https://en.wikipedia.org/wiki/Main_Pa
 """
         expected_output = HTMLNode("div", None, [
             ParentNode("blockquote", [
-                LeafNode(None, "Quote Line 1"),
-                LeafNode(None, "Quote Line 2"),
+                LeafNode(None, "Quote Line 1 "),
+                LeafNode(None, "Quote Line 2 "),
                 LeafNode(None, "Quote Line 3")
             ]),
             ParentNode("blockquote", [
-                LeafNode(None, "More quotes 1"),
+                LeafNode(None, "More quotes 1 "),
                 LeafNode(None, "More quotes 2")
             ]),
             ParentNode("p", [
@@ -615,8 +615,8 @@ For example, an unordered list:
 * Or a list item containing **some bold words**
 * Or `all types` of **supported** *syntax*
 
-> According to all known laws of aviation, 
-> there is no way a bee should be able to fly. 
+> According to all known laws of aviation,
+> there is no way a bee should be able to fly.
 > Its wings are too small to...
 
 Above is a quote block. 
