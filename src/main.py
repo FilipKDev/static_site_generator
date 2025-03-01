@@ -2,6 +2,7 @@ from textnode import TextNode, TextType
 from block_markdown import extract_title, markdown_to_html_node
 from parentnode import ParentNode
 import os
+import sys
 import shutil
 
 def copy_files(source_path, destination_path):
@@ -20,19 +21,19 @@ def copy_files(source_path, destination_path):
             copy_files(new_source_path, new_destination_path)
     return
 
-def generate_multiple_pages(from_path, template_path, dest_path):
+def generate_multiple_pages(from_path, template_path, dest_path, base_path):
     for item in os.listdir(from_path):
         new_from_path = os.path.join(from_path, item)
         new_dest_path = os.path.join(dest_path, item)
         if os.path.isfile(new_from_path):
             print(f"\nGenerating html page from {new_from_path}")
-            generate_page(from_path, template_path, dest_path)
+            generate_page(from_path, template_path, dest_path, base_path)
         else:
             print(f"\nlooking for markdown in {new_from_path}")
-            generate_multiple_pages(new_from_path, template_path, new_dest_path)
+            generate_multiple_pages(new_from_path, template_path, new_dest_path, base_path)
     return
 
-def generate_page(from_path, template_path, dest_path):
+def generate_page(from_path, template_path, dest_path, base_path):
     print(f"Generating page from {from_path} to {dest_path} using {template_path}")
 
     markdown = read_markdown(from_path)
@@ -42,6 +43,8 @@ def generate_page(from_path, template_path, dest_path):
     template = read_template(template_path)
     webpage = template.replace("{{ Title }}", title)
     webpage = webpage.replace("{{ Content }}", markdown_html_node.to_html())
+    webpage = webpage.replace("href=\"/", f"href=\"{base_path}")
+    webpage = webpage.replace("src=\"/", f"src=\"{base_path}")
 
     if not os.path.exists(dest_path):
         os.makedirs(dest_path, exist_ok=True)
@@ -70,14 +73,18 @@ def read_template(template_path):
             return template_content
 
 def main():
+    program_arguments = sys.argv
+    basepath = "/"
+    if len(program_arguments) > 1:
+        basepath = program_arguments[1]
     from_path = "/home/filip/workspace/github.com/FilipKDev/static_site_generator/content"
     template_path = "/home/filip/workspace/github.com/FilipKDev/static_site_generator"
-    dest_path = "/home/filip/workspace/github.com/FilipKDev/static_site_generator/public"
+    dest_path = "/home/filip/workspace/github.com/FilipKDev/static_site_generator/docs"
     
     if os.path.exists(dest_path):
         print(f"removing {dest_path} and its contents")
         shutil.rmtree(dest_path)
     copy_files("/home/filip/workspace/github.com/FilipKDev/static_site_generator/static", dest_path)
-    generate_multiple_pages(from_path, template_path, dest_path)
+    generate_multiple_pages(from_path, template_path, dest_path, basepath)
 
 main()
